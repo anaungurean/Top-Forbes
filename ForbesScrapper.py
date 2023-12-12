@@ -3,11 +3,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from DatabaseConnector import DatabaseConnector
 
 class ForbesScraper:
     def __init__(self):
         self.driver = webdriver.Chrome()
         self.profile_billionaire_urls = []
+        self.db_connector = DatabaseConnector()
 
     def scrape_page_top_billionaires(self):
         try:
@@ -21,7 +23,7 @@ class ForbesScraper:
             for div in divs:
                 div_id = div['id']
                 url = f'https://www.forbes.com/profile/{div_id}'
-                if len(self.profile_billionaire_urls) >= 3:
+                if len(self.profile_billionaire_urls) >= 200:
                    break
                 self.profile_billionaire_urls.append(url)
 
@@ -36,6 +38,19 @@ class ForbesScraper:
             ).click()
         except Exception as e:
             print(f"An error occurred while clicking the next page button: {e}")
+
+    def inserate_data(self, profile_dict, index):
+        try:
+            self.db_connector.insert_data(
+                profile_dict['Name'], profile_dict['Net Worth'], profile_dict['Age'],
+                profile_dict['Source of Wealth'], profile_dict['Self-Made Score'],
+                profile_dict['Philanthropy Score'], profile_dict['Residence'],
+                profile_dict['Citizenship'], profile_dict['Marital Status'],
+                profile_dict['Children'], profile_dict['Education'])
+
+            print(f"Inserted data for billionaire from {index} position")
+        except Exception as e:
+            print(f"An error occurred while inserting data: {e}")
 
     def scrap_profile_page(self, url):
         try:
@@ -71,8 +86,8 @@ class ForbesScraper:
                 dd_text = dd_element.get_text(strip=True) if dd_element else None
                 profile_dict[dt_text] = dd_text
 
-            print(profile_dict)
-
+            index = self.profile_billionaire_urls.index(url) + 1
+            self.inserate_data(profile_dict, index)
         except Exception as e:
             print(f"An error occurred while scraping the profile page: {e}")
 
@@ -83,13 +98,11 @@ class ForbesScraper:
 
     def run_scraper(self):
         try:
+            self.db_connector.delete_all_data()
             self.driver.get('https://www.forbes.com/billionaires/')
             self.scrape_page_top_billionaires()
-            # print(len(self.profile_billionaire_urls))
             self.click_next_page_button()
             self.scrape_page_top_billionaires()
-            # print(self.profile_billionaire_urls)
-            # print(len(self.profile_billionaire_urls))
             self.scrap_profile_pages()
 
         finally:

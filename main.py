@@ -1,4 +1,4 @@
-from crawler import ForbesScraper
+from ForbesScrapper import ForbesScraper
 
 if __name__ == "__main__":
     scraper = ForbesScraper()
