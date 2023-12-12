@@ -1,7 +1,5 @@
+from crawler import ForbesScraper
 
-
-def main():
-    return 0
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    scraper = ForbesScraper()
+    scraper.run_scraper()
