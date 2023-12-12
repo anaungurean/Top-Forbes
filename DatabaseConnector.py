@@ -107,7 +107,7 @@ class DatabaseConnector:
         finally:
             self.disconnect()
 
-    def drop_table(self):
+    def drop_table(self,):
         try:
             self.connect()
             drop_query = '''
@@ -120,6 +120,8 @@ class DatabaseConnector:
             print(f"An error occurred while dropping the table: {e}")
         finally:
             self.disconnect()
+
+
 
 
 
