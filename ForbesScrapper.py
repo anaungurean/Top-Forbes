@@ -115,7 +115,6 @@ class ForbesScraper:
             self.db_connector.delete_all_data()
             self.driver.get('https://www.forbes.com/billionaires/')
             self.scrape_principal_page_top_billionaires()
-            print(len(self.profile_billionaire_urls))
             self.scrap_profile_pages()
         finally:
             self.driver.quit()
