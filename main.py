@@ -5,20 +5,21 @@ from prettytable import PrettyTable
 from forbes_functions import count_citizenship
 from forbes_functions import get_top_10_philanthropists
 
-def format_as_table(billionaires):
+
+def format_as_table(billionaires_info):
     table = PrettyTable()
     table.field_names = ['Id', 'Name', 'Net Worth', 'Age', 'Source of Wealth', 'Self-Made Score',
                          'Philanthropy Score', 'Residence', 'Citizenship', 'Marital Status',
                          'Children', 'Education']
-    for billionaire in billionaires:
+
+    for billionaire in billionaires_info:
         table.add_row(billionaire)
     return table
 
 
-
 if __name__ == "__main__":
-    # scraper = ForbesScraper()
-    # scraper.run_scraper()
+    scraper = ForbesScraper()
+    scraper.run_scraper()
     db_connector = DatabaseConnector()
     top_10_youngest = get_top_10_youngest_billionaires(db_connector)
     print("Top 10 youngest billionaires:")

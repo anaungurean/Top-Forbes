@@ -2,25 +2,26 @@ from configparser import ConfigParser
 import psycopg2
 
 
+def load_configuration(filename, section):
+    parser = ConfigParser()
+    parser.read(filename)
+
+    db = {}
+    if parser.has_section(section):
+        params = parser.items(section)
+        for param in params:
+            db[param[0]] = param[1]
+    else:
+        raise Exception(f'Section {section} not found in the {filename} file')
+
+    return db
+
+
 class DatabaseConnector:
     def __init__(self, filename='database.ini', section='postgresql'):
-        self.db_config = self.load_config(filename, section)
+        self.db_config = load_configuration(filename, section)
         self.connection = None
         self.cursor = None
-
-    def load_config(self, filename, section):
-        parser = ConfigParser()
-        parser.read(filename)
-
-        db = {}
-        if parser.has_section(section):
-            params = parser.items(section)
-            for param in params:
-                db[param[0]] = param[1]
-        else:
-            raise Exception(f'Section {section} not found in the {filename} file')
-
-        return db
 
     def connect(self):
         try:
@@ -65,34 +66,24 @@ class DatabaseConnector:
         finally:
             self.disconnect()
 
-    def insert_data(self, name, net_worth, age, source_of_wealth, self_made_score, philanthropy_score, residence, citizenship, marital_status, children, education):
+    def insert_data(self, name, net_worth, age, source_of_wealth, self_made_score, philanthropy_score, residence,
+                    citizenship, marital_status, children, education):
         try:
             self.connect()
             insert_query = '''
-                INSERT INTO billionaires (name, net_worth, age, source_of_wealth, self_made_score, philanthropy_score, residence, citizenship, marital_status, children, education)
+                INSERT INTO billionaires (name, net_worth, age, source_of_wealth, self_made_score, philanthropy_score, residence, 
+                citizenship, marital_status, children, education)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             '''
-            self.cursor.execute(insert_query, (name, net_worth, age, source_of_wealth, self_made_score, philanthropy_score, residence, citizenship, marital_status, children, education))
+            self.cursor.execute(insert_query, (name, net_worth, age, source_of_wealth, self_made_score,
+                                               philanthropy_score, residence, citizenship, marital_status, children,
+                                               education))
             self.connection.commit()
         except Exception as e:
             print(f"An error occurred while inserting data into the database: {e}")
         finally:
             self.disconnect()
 
-    def select_all(self):
-        try:
-            self.connect()
-            select_query = '''
-                SELECT * FROM billionaires;
-            '''
-            self.cursor.execute(select_query)
-            billionaires = self.cursor.fetchall()
-            for billionaire in billionaires:
-                print(billionaire)
-        except Exception as e:
-            print(f"An error occurred while selecting data from the database: {e}")
-        finally:
-            self.disconnect()
     def delete_all_data(self):
         try:
             self.connect()
@@ -107,19 +98,7 @@ class DatabaseConnector:
         finally:
             self.disconnect()
 
-    def drop_table(self,):
-        try:
-            self.connect()
-            drop_query = '''
-                DROP TABLE billionaires;
-            '''
-            self.cursor.execute(drop_query)
-            self.connection.commit()
-            print("Table dropped successfully!")
-        except Exception as e:
-            print(f"An error occurred while dropping the table: {e}")
-        finally:
-            self.disconnect()
+
 
 
 
